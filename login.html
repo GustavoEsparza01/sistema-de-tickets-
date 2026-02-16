@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Tickets - Login</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">
+                <i class="fas fa-ticket-alt"></i>
+                <h1>TicketSystem</h1>
+            </div>
+            <p>Sistema de Reportes Técnicos</p>
+        </div>
+        
+        <div class="login-card">
+            <h2>Iniciar Sesión</h2>
+            
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i> Correo Electrónico
+                    </label>
+                    <input type="email" id="email" placeholder="usuario@empresa.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i> Contraseña
+                    </label>
+                    <input type="password" id="password" placeholder="Ingresa tu contraseña">
+                </div>
+                
+                <div class="form-group">
+                    <label for="role">
+                        <i class="fas fa-user-tag"></i> Tipo de Usuario
+                    </label>
+                    <select id="role">
+                        <option value="">Selecciona tu rol</option>
+                        <option value="empleado">Empleado</option>
+                        <option value="tecnico">Técnico</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-primary btn-block" onclick="window.location.href='index.html'">
+                    <i class="fas fa-sign-in-alt"></i> Ingresar al Sistema
+                </button>
+                
+                <div class="login-footer">
+                    <p>¿Problemas para ingresar? Contacta al soporte técnico</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-credentials">
+            <h3>Credenciales de Demo:</h3>
+            <p><strong>Empleado:</strong> empleado@demo.com / contraseña123</p>
+            <p><strong>Técnico:</strong> tecnico@demo.com / contraseña123</p>
+            <p><strong>Admin:</strong> admin@demo.com / contraseña123</p>
+        </div>
+    </div>
+</body>
+</html>

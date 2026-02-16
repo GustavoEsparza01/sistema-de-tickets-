@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Tickets - Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Barra de Navegación -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-ticket-alt"></i>
+            <span>TicketSystem</span>
+        </div>
+        
+        <div class="nav-user">
+            <i class="fas fa-user-circle"></i>
+            <span id="current-user">Juan Pérez (Empleado)</span>
+            <button class="btn btn-sm btn-logout" onclick="window.location.href='login.html'">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-menu">
+                <button class="sidebar-item active" onclick="showSection('dashboard')">
+                    <i class="fas fa-home"></i> Dashboard
+                </button>
+                
+                <button class="sidebar-item" onclick="showSection('new-ticket')">
+                    <i class="fas fa-plus-circle"></i> Nuevo Ticket
+                </button>
+                
+                <button class="sidebar-item" onclick="showSection('my-tickets')">
+                    <i class="fas fa-ticket-alt"></i> Mis Tickets
+                </button>
+                
+                <button class="sidebar-item" onclick="showSection('all-tickets')">
+                    <i class="fas fa-list"></i> Todos los Tickets
+                </button>
+                
+                <div class="sidebar-divider"></div>
+                
+                <button class="sidebar-item" onclick="showSection('knowledge-base')">
+                    <i class="fas fa-book"></i> Base de Conocimiento
+                </button>
+                
+                <button class="sidebar-item" onclick="showSection('reports')">
+                    <i class="fas fa-chart-bar"></i> Reportes
+                </button>
+                
+                <button class="sidebar-item" onclick="showSection('settings')">
+                    <i class="fas fa-cog"></i> Configuración
+                </button>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="system-status">
+                    <span class="status-indicator active"></span>
+                    <span>Sistema: <strong>En línea</strong></span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="main-content">
+            <!-- Dashboard (Sección Activa por Defecto) -->
+            <section id="dashboard" class="content-section active">
+                <div class="section-header">
+                    <h1><i class="fas fa-home"></i> Dashboard</h1>
+                    <p>Bienvenido al sistema de tickets de soporte técnico</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #e3f2fd;">
+                            <i class="fas fa-exclamation-circle" style="color: #2196f3;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Tickets Abiertos</h3>
+                            <span class="stat-number">12</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #f3e5f5;">
+                            <i class="fas fa-clock" style="color: #9c27b0;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>En Progreso</h3>
+                            <span class="stat-number">5</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #e8f5e9;">
+                            <i class="fas fa-check-circle" style="color: #4caf50;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Resueltos Hoy</h3>
+                            <span class="stat-number">8</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #fff3e0;">
+                            <i class="fas fa-chart-line" style="color: #ff9800;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Tiempo Promedio</h3>
+                            <span class="stat-number">2.5h</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="quick-actions">
+                    <h2>Acciones Rápidas</h2>
+                    <div class="actions-grid">
+                        <button class="action-btn" onclick="showSection('new-ticket')">
+                            <i class="fas fa-plus"></i>
+                            <span>Crear Ticket</span>
+                        </button>
+                        
+                        <button class="action-btn" onclick="showSection('my-tickets')">
+                            <i class="fas fa-eye"></i>
+                            <span>Ver Mis Tickets</span>
+                        </button>
+                        
+                        <button class="action-btn">
+                            <i class="fas fa-search"></i>
+                            <span>Buscar Ticket</span>
+                        </button>
+                        
+                        <button class="action-btn" onclick="showSection('knowledge-base')">
+                            <i class="fas fa-question-circle"></i>
+                            <span>Ayuda y Guías</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Formulario para Nuevo Ticket -->
+            <section id="new-ticket" class="content-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-plus-circle"></i> Nuevo Ticket de Soporte</h1>
+                    <p>Reporta un problema técnico o solicita asistencia</p>
+                </div>
+                
+                <div class="ticket-form-container">
+                    <form id="ticketForm" class="ticket-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ticket-title">
+                                    <i class="fas fa-heading"></i> Título del Problema
+                                </label>
+                                <input type="text" id="ticket-title" 
+                                       placeholder="Ej: Impresora no responde en el área de contabilidad">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ticket-category">
+                                    <i class="fas fa-tags"></i> Categoría
+                                </label>
+                                <select id="ticket-category">
+                                    <option value="">Selecciona una categoría</option>
+                                    <option value="impresora">Impresora</option>
+                                    <option value="red">Red/Internet</option>
+                                    <option value="computadora">Computadora</option>
+                                    <option value="software">Software</option>
+                                    <option value="hardware">Hardware</option>
+                                    <option value="telefonia">Teléfonía</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="ticket-priority">
+                                    <i class="fas fa-exclamation-triangle"></i> Prioridad
+                                </label>
+                                <select id="ticket-priority">
+                                    <option value="baja">Baja</option>
+                                    <option value="media" selected>Media</option>
+                                    <option value="alta">Alta</option>
+                                    <option value="critica">Crítica</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ticket-description">
+                                <i class="fas fa-file-alt"></i> Descripción Detallada
+                            </label>
+                            <textarea id="ticket-description" rows="5" 
+                                      placeholder="Describe el problema con el mayor detalle posible. Incluye:
+- Qué estás tratando de hacer
+- Qué error o problema aparece
+- Cuándo comenzó el problema
+- Pasos para reproducir el problema"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ticket-department">
+                                <i class="fas fa-building"></i> Departamento
+                            </label>
+                            <select id="ticket-department">
+                                <option value="contabilidad">Contabilidad</option>
+                                <option value="ventas">Ventas</option>
+                                <option value="rrhh">Recursos Humanos</option>
+                                <option value="ti">Tecnologías de Información</option>
+                                <option value="operaciones">Operaciones</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-paperclip"></i> Adjuntar Archivos (Opcional)
+                            </label>
+                            <div class="file-upload">
+                                <input type="file" id="ticket-attachments" multiple>
+                                <label for="ticket-attachments" class="file-upload-label">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>Arrastra archivos aquí o haz clic para seleccionar</span>
+                                </label>
+                                <div class="file-list" id="file-list">
+                                    <!-- Archivos seleccionados aparecerán aquí -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Enviar Ticket
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Sección de Mis Tickets -->
+            <section id="my-tickets" class="content-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-ticket-alt"></i> Mis Tickets</h1>
+                    <p>Tickets que has creado o te han sido asignados</p>
+                </div>
+                
+                <div class="tickets-controls">
+                    <div class="filter-controls">
+                        <select id="filter-status">
+                            <option value="">Todos los estados</option>
+                            <option value="abierto">Abierto</option>
+                            <option value="en-progreso">En Progreso</option>
+                            <option value="resuelto">Resuelto</option>
+                            <option value="cerrado">Cerrado</option>
+                        </select>
+                        
+                        <select id="filter-priority">
+                            <option value="">Todas las prioridades</option>
+                            <option value="baja">Baja</option>
+                            <option value="media">Media</option>
+                            <option value="alta">Alta</option>
+                            <option value="critica">Crítica</option>
+                        </select>
+                        
+                        <button class="btn btn-secondary">
+                            <i class="fas fa-filter"></i> Filtrar
+                        </button>
+                    </div>
+                    
+                    <div class="search-controls">
+                        <input type="text" placeholder="Buscar tickets..." id="ticket-search">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tickets-list">
+                    <!-- Ejemplo de Ticket -->
+                    <div class="ticket-item">
+                        <div class="ticket-header">
+                            <span class="ticket-id">#TKT-001</span>
+                            <span class="ticket-category badge badge-printer">
+                                <i class="fas fa-print"></i> Impresora
+                            </span>
+                            <span class="ticket-priority badge-priority alta">Alta</span>
+                            <span class="ticket-status status-abierto">Abierto</span>
+                        </div>
+                        
+                        <div class="ticket-body">
+                            <h3 class="ticket-title">Impresora HP no responde en el piso 3</h3>
+                            <p class="ticket-description">La impresora muestra luz roja intermitente y no imprime documentos de nómina urgentes. Ya se intentó reiniciar pero persiste el problema.</p>
+                            
+                            <div class="ticket-meta">
+                                <span class="ticket-date">
+                                    <i class="far fa-calendar"></i> Creado: 15 Nov 2023
+                                </span>
+                                <span class="ticket-department">
+                                    <i class="fas fa-building"></i> Contabilidad
+                                </span>
+                                <span class="ticket-assigned">
+                                    <i class="fas fa-user-cog"></i> Asignado a: Carlos Rodríguez
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="ticket-actions">
+                            <button class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye"></i> Ver Detalles
+                            </button>
+                            <button class="btn btn-sm btn-secondary">
+                                <i class="fas fa-comment"></i> Comentar
+                            </button>
+                            <button class="btn btn-sm btn-danger">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Segundo Ticket de Ejemplo -->
+                    <div class="ticket-item">
+                        <div class="ticket-header">
+                            <span class="ticket-id">#TKT-002</span>
+                            <span class="ticket-category badge badge-network">
+                                <i class="fas fa-wifi"></i> Red
+                            </span>
+                            <span class="ticket-priority badge-priority media">Media</span>
+                            <span class="ticket-status status-en-progreso">En Progreso</span>
+                        </div>
+                        
+                        <div class="ticket-body">
+                            <h3 class="ticket-title">Computadora sin acceso a red en área de ventas</h3>
+                            <p class="ticket-description">La estación de trabajo del escritorio 5 no tiene conexión a internet ni a recursos de red. El cable de red parece estar bien conectado.</p>
+                            
+                            <div class="ticket-meta">
+                                <span class="ticket-date">
+                                    <i class="far fa-calendar"></i> Creado: 14 Nov 2023
+                                </span>
+                                <span class="ticket-department">
+                                    <i class="fas fa-building"></i> Ventas
+                                </span>
+                                <span class="ticket-assigned">
+                                    <i class="fas fa-user-cog"></i> Asignado a: Técnico de Soporte
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="ticket-actions">
+                            <button class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye"></i> Ver Detalles
+                            </button>
+                            <button class="btn btn-sm btn-secondary">
+                                <i class="fas fa-comment"></i> Comentar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Otras secciones (vacíos por ahora) -->
+            <section id="all-tickets" class="content-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-list"></i> Todos los Tickets</h1>
+                    <p>Vista completa de todos los tickets del sistema</p>
+                </div>
+                <p class="empty-state">Esta sección mostrará todos los tickets del sistema.</p>
+            </section>
+
+            <section id="knowledge-base" class="content-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-book"></i> Base de Conocimiento</h1>
+                    <p>Guías y soluciones a problemas comunes</p>
+                </div>
+                <p class="empty-state">Aquí se mostrarán artículos de ayuda y soluciones.</p>
+            </section>
+
+            <section id="reports" class="content-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-chart-bar"></i> Reportes</h1>
+                    <p>Estadísticas y métricas del sistema</p>
+                </div>
+                <p class="empty-state">Esta sección mostrará gráficos y reportes.</p>
+            </section>
+
+            <section id="settings" class="content-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-cog"></i> Configuración</h1>
+                    <p>Ajustes del sistema y preferencias de usuario</p>
+                </div>
+                <p class="empty-state">Configuración del sistema y usuario.</p>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/ui.js"></script>
+</body>
+</html>
