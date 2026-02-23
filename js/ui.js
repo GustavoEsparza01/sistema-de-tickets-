@@ -13,6 +13,9 @@ const userName = localStorage.getItem('currentUser') || 'Invitado';
 // Mostrar nombre de usuario
 currentUserSpan.textContent = userName;
 
+// URL de la API (JSON Server)
+const API_URL = 'http://localhost:3000';
+
 // Función para ocultar elementos según el rol
 function aplicarPermisosPorRol() {
     sidebarItems.forEach(item => {
@@ -21,6 +24,8 @@ function aplicarPermisosPorRol() {
             const rolesArray = rolesPermitidos.split(',');
             if (!rolesArray.includes(userRole)) {
                 item.style.display = 'none';
+            } else {
+                item.style.display = '';
             }
         }
     });
@@ -40,9 +45,15 @@ function showSection(sectionId) {
         }
     });
 
-    // Al cambiar de sección, recargar los tickets correspondientes
-    if (sectionId === 'my-tickets' || sectionId === 'all-tickets') {
-        cargarTicketsDesdeDOM(sectionId);
+    // Cargar datos según la sección
+    if (sectionId === 'my-created-tickets') {
+        cargarMisTickets();
+    } else if (sectionId === 'my-assignments') {
+        cargarMisAsignaciones();
+    } else if (sectionId === 'all-tickets') {
+        cargarTodosTickets();
+    } else if (sectionId === 'dashboard') {
+        cargarEstadisticasDashboard();
     }
 }
 
@@ -84,71 +95,20 @@ function cerrarTodosModales() {
 }
 
 // ============================================
-// FUNCIONES PARA TICKETS (técnico)
+// FUNCIONES PARA CARGAR TICKETS DESDE JSON SERVER
 // ============================================
 
-// Variable global para almacenar los tickets de cada sección
-let ticketsData = {
-    'my-tickets': [],
-    'all-tickets': []
-};
-
-// Cargar tickets desde el HTML (solo una vez al inicio)
-function cargarTicketsDesdeDOM(seccion) {
-    const container = document.querySelector(`#${seccion} .tickets-list`);
-    if (!container) return;
-
-    // Si ya tenemos datos guardados, no volver a cargar
-    if (ticketsData[seccion].length > 0) return;
-
-    const items = container.querySelectorAll('.ticket-item');
-    items.forEach(item => {
-        const ticket = {
-            id: item.querySelector('.ticket-id')?.textContent.replace('#TKT-', '') || '0',
-            titulo: item.querySelector('.ticket-title')?.textContent || '',
-            descripcion: item.querySelector('.ticket-description')?.textContent || '',
-            categoria: item.querySelector('.ticket-category')?.textContent.trim() || '',
-            prioridad: item.querySelector('.ticket-priority')?.textContent.trim() || '',
-            estado: item.querySelector('.ticket-status')?.textContent.trim() || '',
-            area: extraerMeta(item, 'building') || '',
-            tipoSolicitud: extraerMeta(item, 'tasks') || '',
-            solicitante: extraerMeta(item, 'user') || '',
-            asignadoA: extraerMeta(item, 'user-cog') || '',
-            fechaCreacion: extraerFecha(item)
-        };
-        ticketsData[seccion].push(ticket);
-    });
+function mostrarNotificacion(mensaje, tipo = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${tipo}`;
+    toast.textContent = mensaje;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
 }
 
-function extraerMeta(item, iconClass) {
-    const span = Array.from(item.querySelectorAll('.ticket-meta span')).find(s => 
-        s.querySelector(`.fa-${iconClass}`)
-    );
-    return span ? span.textContent.replace(/[^:]*:/, '').trim() : '';
-}
-
-function extraerFecha(item) {
-    const span = Array.from(item.querySelectorAll('.ticket-meta span')).find(s => 
-        s.querySelector('.fa-calendar')
-    );
-    if (span) {
-        const fechaTexto = span.textContent.replace('Creado:', '').trim();
-        // Convertir a formato YYYY-MM-DD para comparación
-        const partes = fechaTexto.split(' ');
-        if (partes.length >= 3) {
-            const dia = partes[1];
-            const mes = partes[0];
-            const anio = partes[2];
-            const meses = { 'Ene':1,'Feb':2,'Mar':3,'Abr':4,'May':5,'Jun':6,'Jul':7,'Ago':8,'Sep':9,'Oct':10,'Nov':11,'Dic':12 };
-            return `${anio}-${meses[mes]?.toString().padStart(2,'0')}-${dia.padStart(2,'0')}`;
-        }
-    }
-    return '';
-}
-
-// Renderizar tickets en una sección
-function renderizarTickets(seccion, tickets) {
-    const container = document.querySelector(`#${seccion} .tickets-list`);
+// Renderizar tickets en un contenedor
+function renderizarTickets(containerId, tickets, esAsignaciones = false) {
+    const container = document.getElementById(containerId);
     if (!container) return;
     container.innerHTML = '';
     if (tickets.length === 0) {
@@ -156,7 +116,34 @@ function renderizarTickets(seccion, tickets) {
         return;
     }
     tickets.forEach(ticket => {
-        // Crear el HTML del ticket (puedes adaptarlo según tu estructura)
+        let botones = '';
+        if (esAsignaciones) {
+            // Vista para técnico (mis asignaciones o todos los tickets)
+            botones = `
+                <button class="btn btn-sm btn-primary" onclick="abrirModalCambiarEstado(${ticket.id})">
+                    <i class="fas fa-exchange-alt"></i> Cambiar Estado
+                </button>
+                <button class="btn btn-sm btn-secondary" onclick="abrirModalComentario(${ticket.id})">
+                    <i class="fas fa-comment"></i> Comentar
+                </button>
+                ${!ticket.asignadoA ? `
+                    <button class="btn btn-sm btn-success" onclick="asignarmeTicket(${ticket.id})">
+                        <i class="fas fa-hand-pointer"></i> Asignarme
+                    </button>
+                ` : ''}
+            `;
+        } else {
+            // Vista para empleado (mis tickets)
+            botones = `
+                <button class="btn btn-sm btn-primary" onclick="abrirModalCambiarEstado(${ticket.id})">
+                    <i class="fas fa-exchange-alt"></i> Cambiar Estado
+                </button>
+                <button class="btn btn-sm btn-secondary" onclick="abrirModalComentario(${ticket.id})">
+                    <i class="fas fa-comment"></i> Comentar
+                </button>
+            `;
+        }
+
         const html = `
             <div class="ticket-item">
                 <div class="ticket-header">
@@ -165,31 +152,21 @@ function renderizarTickets(seccion, tickets) {
                         <i class="fas fa-tag"></i> ${ticket.categoria}
                     </span>
                     <span class="ticket-priority badge-priority ${ticket.prioridad}">${ticket.prioridad}</span>
-                    <span class="ticket-status status-${ticket.estado.replace(' ', '-')}">${ticket.estado}</span>
+                    <span class="ticket-status status-${ticket.estado.replace('_', '-')}">${ticket.estado}</span>
                 </div>
                 <div class="ticket-body">
                     <h3 class="ticket-title">${ticket.titulo}</h3>
                     <p class="ticket-description">${ticket.descripcion}</p>
                     <div class="ticket-meta">
-                        <span><i class="far fa-calendar"></i> ${ticket.fechaCreacion}</span>
+                        <span><i class="far fa-calendar"></i> ${new Date(ticket.fechaCreacion).toLocaleDateString()}</span>
                         <span><i class="fas fa-building"></i> ${ticket.area}</span>
                         <span><i class="fas fa-tasks"></i> ${ticket.tipoSolicitud}</span>
-                        <span><i class="fas fa-user"></i> ${ticket.solicitante}</span>
+                        <span><i class="fas fa-user"></i> ${ticket.solicitante || 'N/A'}</span>
                         ${ticket.asignadoA ? `<span><i class="fas fa-user-cog"></i> ${ticket.asignadoA}</span>` : ''}
                     </div>
                 </div>
                 <div class="ticket-actions">
-                    <button class="btn btn-sm btn-primary" onclick="abrirModalCambiarEstado(${ticket.id})">
-                        <i class="fas fa-exchange-alt"></i> Cambiar Estado
-                    </button>
-                    <button class="btn btn-sm btn-secondary" onclick="abrirModalComentario(${ticket.id})">
-                        <i class="fas fa-comment"></i> Comentar
-                    </button>
-                    ${seccion === 'all-tickets' && !ticket.asignadoA ? `
-                        <button class="btn btn-sm btn-success" onclick="alert('Asignarme ticket ${ticket.id}')">
-                            <i class="fas fa-hand-pointer"></i> Asignarme
-                        </button>
-                    ` : ''}
+                    ${botones}
                 </div>
             </div>
         `;
@@ -197,111 +174,278 @@ function renderizarTickets(seccion, tickets) {
     });
 }
 
-// Búsqueda simple por texto (título o descripción)
-function buscarTexto(seccion, texto) {
-    const tickets = ticketsData[seccion];
-    if (!texto) return tickets;
-    return tickets.filter(t => 
-        t.titulo.toLowerCase().includes(texto.toLowerCase()) ||
-        t.descripcion.toLowerCase().includes(texto.toLowerCase())
-    );
+// Cargar Mis Tickets (empleado) - tickets creados por el usuario actual
+async function cargarMisTickets() {
+    try {
+        const response = await fetch(`${API_URL}/tickets?solicitante=${encodeURIComponent(userName)}`);
+        const tickets = await response.json();
+        renderizarTickets('my-created-tickets-list', tickets, false);
+    } catch (error) {
+        console.error('Error al cargar mis tickets:', error);
+        mostrarNotificacion('Error al cargar tickets', 'error');
+    }
 }
 
-// Búsqueda avanzada con filtros
-function buscarAvanzado(seccion, filtros) {
-    let tickets = ticketsData[seccion];
-    if (filtros.palabras) {
-        tickets = tickets.filter(t => 
-            t.titulo.toLowerCase().includes(filtros.palabras.toLowerCase()) ||
-            t.descripcion.toLowerCase().includes(filtros.palabras.toLowerCase())
-        );
+// Cargar Mis Asignaciones (técnico) - tickets donde asignadoA = userName
+async function cargarMisAsignaciones() {
+    try {
+        const response = await fetch(`${API_URL}/tickets?asignadoA=${encodeURIComponent(userName)}`);
+        const tickets = await response.json();
+        renderizarTickets('my-assignments-list', tickets, true);
+    } catch (error) {
+        console.error('Error al cargar asignaciones:', error);
+        mostrarNotificacion('Error al cargar asignaciones', 'error');
     }
-    if (filtros.area) tickets = tickets.filter(t => t.area === filtros.area);
-    if (filtros.tipo) tickets = tickets.filter(t => t.tipoSolicitud === filtros.tipo);
-    if (filtros.prioridad) tickets = tickets.filter(t => t.prioridad === filtros.prioridad);
-    if (filtros.estado) tickets = tickets.filter(t => t.estado === filtros.estado);
-    if (filtros.fechaDesde) {
-        const desde = new Date(filtros.fechaDesde);
-        tickets = tickets.filter(t => new Date(t.fechaCreacion) >= desde);
-    }
-    if (filtros.fechaHasta) {
-        const hasta = new Date(filtros.fechaHasta);
-        hasta.setDate(hasta.getDate() + 1);
-        tickets = tickets.filter(t => new Date(t.fechaCreacion) <= hasta);
-    }
-    return tickets;
 }
 
-// Función para el botón de búsqueda simple (en la barra de controles)
-function buscarSimple(seccion) {
-    const input = document.querySelector(`#${seccion} .search-controls input`);
-    if (!input) return;
-    const texto = input.value;
-    const filtrados = buscarTexto(seccion, texto);
-    renderizarTickets(seccion, filtrados);
+// Cargar Todos los Tickets (técnico/admin)
+async function cargarTodosTickets() {
+    try {
+        const response = await fetch(`${API_URL}/tickets`);
+        const tickets = await response.json();
+        renderizarTickets('all-tickets-list', tickets, true);
+    } catch (error) {
+        console.error('Error al cargar todos los tickets:', error);
+        mostrarNotificacion('Error al cargar tickets', 'error');
+    }
 }
 
-// Función para aplicar filtros rápidos (estado, prioridad, etc.)
-function aplicarFiltrosRapidos(seccion) {
-    let tickets = ticketsData[seccion];
-    const estadoSelect = document.querySelector(`#${seccion} select[id*="status"]`);
-    const prioridadSelect = document.querySelector(`#${seccion} select[id*="priority"]`);
-    const asignadoSelect = document.querySelector(`#${seccion} select[id*="assigned"]`); // solo en all-tickets
-
-    if (estadoSelect && estadoSelect.value) {
-        tickets = tickets.filter(t => t.estado === estadoSelect.value);
-    }
-    if (prioridadSelect && prioridadSelect.value) {
-        tickets = tickets.filter(t => t.prioridad === prioridadSelect.value);
-    }
-    if (asignadoSelect && seccion === 'all-tickets') {
-        const val = asignadoSelect.value;
-        if (val === 'asignados') {
-            tickets = tickets.filter(t => t.asignadoA === userName);
-        } else if (val === 'no-asignados') {
-            tickets = tickets.filter(t => !t.asignadoA);
+// Cargar estadísticas del dashboard
+async function cargarEstadisticasDashboard() {
+    try {
+        const res = await fetch(`${API_URL}/tickets`);
+        const tickets = await res.json();
+        let misAbiertos, enProgreso, resueltosHoy, tiempoPromedio;
+        if (userRole === 'empleado') {
+            misAbiertos = tickets.filter(t => t.solicitante === userName && t.estado === 'abierto').length;
+            enProgreso = tickets.filter(t => t.solicitante === userName && t.estado === 'en_progreso').length;
+            resueltosHoy = tickets.filter(t => t.solicitante === userName && t.estado === 'resuelto' && new Date(t.fechaCreacion).toDateString() === new Date().toDateString()).length;
+        } else {
+            misAbiertos = tickets.filter(t => t.asignadoA === userName && t.estado === 'abierto').length;
+            enProgreso = tickets.filter(t => t.asignadoA === userName && t.estado === 'en_progreso').length;
+            resueltosHoy = tickets.filter(t => t.asignadoA === userName && t.estado === 'resuelto' && new Date(t.fechaCreacion).toDateString() === new Date().toDateString()).length;
         }
+        tiempoPromedio = '2.5h';
+
+        document.querySelector('#dashboard .stat-card:nth-child(1) .stat-number').textContent = misAbiertos;
+        document.querySelector('#dashboard .stat-card:nth-child(2) .stat-number').textContent = enProgreso;
+        document.querySelector('#dashboard .stat-card:nth-child(3) .stat-number').textContent = resueltosHoy;
+        document.querySelector('#dashboard .stat-card:nth-child(4) .stat-number').textContent = tiempoPromedio;
+    } catch (error) {
+        console.error('Error al cargar estadísticas:', error);
     }
-    renderizarTickets(seccion, tickets);
 }
 
-// Búsqueda avanzada desde el modal
-function buscarTickets() {
+// ============================================
+// FUNCIONES PARA ACCIONES SOBRE TICKETS
+// ============================================
+
+async function crearTicket(datos) {
+    try {
+        const response = await fetch(`${API_URL}/tickets`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datos)
+        });
+        if (response.ok) {
+            mostrarNotificacion('✅ Ticket creado con éxito');
+            return true;
+        } else {
+            mostrarNotificacion('❌ Error al crear el ticket', 'error');
+            return false;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarNotificacion('Error de conexión', 'error');
+        return false;
+    }
+}
+
+async function guardarCambioEstado() {
+    const ticketId = document.getElementById('estado-ticket-id').value;
+    const nuevoEstado = document.getElementById('nuevo-estado').value;
+    try {
+        const response = await fetch(`${API_URL}/tickets/${ticketId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ estado: nuevoEstado })
+        });
+        if (response.ok) {
+            mostrarNotificacion('✅ Estado actualizado');
+            cerrarModal('modalCambiarEstado');
+            const activeSection = document.querySelector('.content-section.active').id;
+            if (activeSection === 'my-created-tickets') cargarMisTickets();
+            else if (activeSection === 'my-assignments') cargarMisAsignaciones();
+            else if (activeSection === 'all-tickets') cargarTodosTickets();
+        } else {
+            mostrarNotificacion('❌ Error al actualizar', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarNotificacion('Error de conexión', 'error');
+    }
+}
+
+async function guardarComentario() {
+    const ticketId = document.getElementById('comentario-ticket-id').value;
+    const contenido = document.getElementById('comentario-texto').value;
+    if (!contenido.trim()) {
+        mostrarNotificacion('El comentario no puede estar vacío', 'error');
+        return;
+    }
+    const comentario = {
+        ticketId: parseInt(ticketId),
+        usuario: userName,
+        contenido,
+        fecha: new Date().toISOString()
+    };
+    try {
+        const response = await fetch(`${API_URL}/comentarios`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(comentario)
+        });
+        if (response.ok) {
+            mostrarNotificacion('✅ Comentario agregado');
+            cerrarModal('modalComentar');
+        } else {
+            mostrarNotificacion('❌ Error al agregar comentario', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarNotificacion('Error de conexión', 'error');
+    }
+}
+
+async function asignarmeTicket(ticketId) {
+    try {
+        const response = await fetch(`${API_URL}/tickets/${ticketId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ asignadoA: userName })
+        });
+        if (response.ok) {
+            mostrarNotificacion('✅ Ticket asignado a ti');
+            const activeSection = document.querySelector('.content-section.active').id;
+            if (activeSection === 'my-assignments') cargarMisAsignaciones();
+            else if (activeSection === 'all-tickets') cargarTodosTickets();
+        } else {
+            mostrarNotificacion('❌ Error al asignar', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarNotificacion('Error de conexión', 'error');
+    }
+}
+
+// ============================================
+// BÚSQUEDA AVANZADA
+// ============================================
+async function buscarTickets() {
     const seccionActiva = document.querySelector('.content-section.active')?.id;
-    if (!seccionActiva || (seccionActiva !== 'my-tickets' && seccionActiva !== 'all-tickets')) {
-        alert('Esta búsqueda solo está disponible en las secciones de tickets.');
+    if (!seccionActiva || !['my-created-tickets', 'my-assignments', 'all-tickets'].includes(seccionActiva)) {
+        mostrarNotificacion('Esta búsqueda solo está disponible en secciones de tickets', 'error');
         cerrarModal('modalBuscar');
         return;
     }
 
-    const filtros = {
-        palabras: document.getElementById('buscar-palabras')?.value,
-        area: document.getElementById('buscar-area')?.value,
-        tipo: document.getElementById('buscar-tipo')?.value,
-        prioridad: document.getElementById('buscar-prioridad')?.value,
-        estado: document.getElementById('buscar-estado')?.value,
-        fechaDesde: document.getElementById('buscar-fecha-desde')?.value,
-        fechaHasta: document.getElementById('buscar-fecha-hasta')?.value
-    };
+    const palabras = document.getElementById('buscar-palabras').value;
+    const area = document.getElementById('buscar-area').value;
+    const tipo = document.getElementById('buscar-tipo').value;
+    const prioridad = document.getElementById('buscar-prioridad').value;
+    const estado = document.getElementById('buscar-estado').value;
+    const fechaDesde = document.getElementById('buscar-fecha-desde').value;
+    const fechaHasta = document.getElementById('buscar-fecha-hasta').value;
 
-    const ticketsFiltrados = buscarAvanzado(seccionActiva, filtros);
-    renderizarTickets(seccionActiva, ticketsFiltrados);
-    cerrarModal('modalBuscar');
+    const params = new URLSearchParams();
+    if (palabras) params.append('q', palabras);
+    if (area) params.append('area', area);
+    if (tipo) params.append('tipoSolicitud', tipo);
+    if (prioridad) params.append('prioridad', prioridad);
+    if (estado) params.append('estado', estado);
+
+    try {
+        const response = await fetch(`${API_URL}/tickets?${params.toString()}`);
+        let tickets = await response.json();
+
+        if (fechaDesde) {
+            const desde = new Date(fechaDesde);
+            tickets = tickets.filter(t => new Date(t.fechaCreacion) >= desde);
+        }
+        if (fechaHasta) {
+            const hasta = new Date(fechaHasta);
+            hasta.setDate(hasta.getDate() + 1);
+            tickets = tickets.filter(t => new Date(t.fechaCreacion) <= hasta);
+        }
+
+        if (seccionActiva === 'my-created-tickets') {
+            tickets = tickets.filter(t => t.solicitante === userName);
+        } else if (seccionActiva === 'my-assignments') {
+            tickets = tickets.filter(t => t.asignadoA === userName);
+        }
+
+        const containerId = seccionActiva === 'my-created-tickets' ? 'my-created-tickets-list' : (seccionActiva === 'my-assignments' ? 'my-assignments-list' : 'all-tickets-list');
+        const esAsignaciones = (seccionActiva !== 'my-created-tickets');
+        renderizarTickets(containerId, tickets, esAsignaciones);
+        cerrarModal('modalBuscar');
+    } catch (error) {
+        console.error('Error en búsqueda:', error);
+        mostrarNotificacion('Error en la búsqueda', 'error');
+    }
+}
+
+// Filtros rápidos
+async function aplicarFiltrosRapidos(seccion) {
+    let estadoVal = '', prioridadVal = '';
+    if (seccion === 'my-created-tickets') {
+        estadoVal = document.getElementById('filter-status-created')?.value;
+        prioridadVal = document.getElementById('filter-priority-created')?.value;
+    } else if (seccion === 'my-assignments') {
+        estadoVal = document.getElementById('filter-status-assignments')?.value;
+        prioridadVal = document.getElementById('filter-priority-assignments')?.value;
+    } else if (seccion === 'all-tickets') {
+        estadoVal = document.getElementById('filter-status-all')?.value;
+        prioridadVal = document.getElementById('filter-priority-all')?.value;
+    }
+
+    const params = new URLSearchParams();
+    if (estadoVal) params.append('estado', estadoVal);
+    if (prioridadVal) params.append('prioridad', prioridadVal);
+
+    try {
+        const response = await fetch(`${API_URL}/tickets?${params.toString()}`);
+        let tickets = await response.json();
+
+        if (seccion === 'my-created-tickets') {
+            tickets = tickets.filter(t => t.solicitante === userName);
+        } else if (seccion === 'my-assignments') {
+            tickets = tickets.filter(t => t.asignadoA === userName);
+        } else if (seccion === 'all-tickets') {
+            const asignadoSelect = document.getElementById('filter-assigned');
+            if (asignadoSelect) {
+                if (asignadoSelect.value === 'asignados') {
+                    tickets = tickets.filter(t => t.asignadoA === userName);
+                } else if (asignadoSelect.value === 'no-asignados') {
+                    tickets = tickets.filter(t => !t.asignadoA);
+                }
+            }
+        }
+
+        const containerId = seccion === 'my-created-tickets' ? 'my-created-tickets-list' : (seccion === 'my-assignments' ? 'my-assignments-list' : 'all-tickets-list');
+        const esAsignaciones = (seccion !== 'my-created-tickets');
+        renderizarTickets(containerId, tickets, esAsignaciones);
+    } catch (error) {
+        console.error('Error al filtrar:', error);
+        mostrarNotificacion('Error al filtrar', 'error');
+    }
 }
 
 // ============================================
-// FUNCIONES PARA MODALES DE ESTADO Y COMENTARIOS
+// FUNCIONES DE MODALES
 // ============================================
 function abrirModalCambiarEstado(ticketId) {
     document.getElementById('estado-ticket-id').value = ticketId;
     abrirModal('modalCambiarEstado');
-}
-
-function guardarCambioEstado() {
-    const ticketId = document.getElementById('estado-ticket-id').value;
-    const nuevoEstado = document.getElementById('nuevo-estado').value;
-    alert(`✅ Estado del ticket ${ticketId} cambiado a: ${nuevoEstado} (simulado)`);
-    cerrarModal('modalCambiarEstado');
 }
 
 function abrirModalComentario(ticketId) {
@@ -310,27 +454,46 @@ function abrirModalComentario(ticketId) {
     abrirModal('modalComentar');
 }
 
-function guardarComentario() {
-    const ticketId = document.getElementById('comentario-ticket-id').value;
-    const comentario = document.getElementById('comentario-texto').value;
-    if (!comentario.trim()) {
-        alert('El comentario no puede estar vacío');
+function enviarTicketModal() {
+    const titulo = document.getElementById('modal-titulo').value;
+    const categoria = document.getElementById('modal-categoria').value;
+    const prioridad = document.getElementById('modal-prioridad').value;
+    const descripcion = document.getElementById('modal-descripcion').value;
+    const area = document.getElementById('modal-area').value;
+    const tipo = document.getElementById('modal-tipo').value;
+
+    if (!titulo || !descripcion || !categoria || !prioridad || !area || !tipo) {
+        mostrarNotificacion('Por favor completa todos los campos', 'error');
         return;
     }
-    alert(`✅ Comentario agregado al ticket ${ticketId}: "${comentario}" (simulado)`);
-    cerrarModal('modalComentar');
+
+    const nuevoTicket = {
+        titulo,
+        descripcion,
+        categoria,
+        prioridad,
+        area,
+        tipoSolicitud: tipo,
+        estado: 'abierto',
+        fechaCreacion: new Date().toISOString(),
+        solicitante: userName,
+        asignadoA: null
+    };
+
+    crearTicket(nuevoTicket).then(exito => {
+        if (exito) {
+            cerrarModal('modalNuevoTicket');
+            if (document.getElementById('my-created-tickets').classList.contains('active')) {
+                cargarMisTickets();
+            } else {
+                showSection('my-created-tickets');
+            }
+        }
+    });
 }
 
 // ============================================
-// FUNCIONES DE DEMO (modales anteriores)
-// ============================================
-function enviarTicketModal() {
-    alert('Ticket creado (simulado) desde el modal');
-    cerrarModal('modalNuevoTicket');
-}
-
-// ============================================
-// MANEJO DE ARCHIVOS ADJUNTOS Y EVENTOS INICIALES
+// INICIALIZACIÓN
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('ticket-attachments');
@@ -341,7 +504,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (this.files.length > 0) {
                 const list = document.createElement('ul');
                 list.className = 'file-list-items';
-                Array.from(this.files).forEach((file, index) => {
+                Array.from(this.files).forEach(file => {
                     const listItem = document.createElement('li');
                     listItem.className = 'file-list-item';
                     listItem.innerHTML = `<span class="file-name">${file.name}</span> <span class="file-size">${(file.size/1024).toFixed(2)} KB</span> <button class="remove-file-btn" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
@@ -354,67 +517,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const ticketForm = document.getElementById('ticketForm');
     if (ticketForm) {
-        ticketForm.addEventListener('submit', function(e) {
+        ticketForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            alert('Ticket enviado (simulado) desde el formulario principal');
+            const ticketData = {
+                titulo: document.getElementById('ticket-title').value,
+                descripcion: document.getElementById('ticket-description').value,
+                categoria: document.getElementById('ticket-category').value,
+                prioridad: document.getElementById('ticket-priority').value,
+                area: document.getElementById('ticket-area').value,
+                tipoSolicitud: document.getElementById('ticket-tipo').value,
+                estado: 'abierto',
+                fechaCreacion: new Date().toISOString(),
+                solicitante: userName,
+                asignadoA: null
+            };
+            if (await crearTicket(ticketData)) {
+                ticketForm.reset();
+                showSection('my-created-tickets');
+            }
         });
     }
 
-    // Asignar eventos a los botones de búsqueda simple y filtros
-    // Para la sección my-tickets
-    const btnFiltrarMy = document.querySelector('#my-tickets .btn-secondary');
-    if (btnFiltrarMy) {
-        btnFiltrarMy.addEventListener('click', () => aplicarFiltrosRapidos('my-tickets'));
-    }
-    const btnBuscarMy = document.querySelector('#my-tickets .search-controls .btn-primary');
-    if (btnBuscarMy) {
-        btnBuscarMy.addEventListener('click', (e) => {
-            e.preventDefault();
-            abrirModal('modalBuscar');
-        });
-    }
-    // Búsqueda simple por input (opcional, podríamos agregar un botón "Buscar" en la lupa)
-    const inputMy = document.querySelector('#my-tickets .search-controls input');
-    if (inputMy) {
-        inputMy.addEventListener('keyup', (e) => {
-            if (e.key === 'Enter') buscarSimple('my-tickets');
-        });
-    }
-
-    // Para la sección all-tickets
-    const btnFiltrarAll = document.querySelector('#all-tickets .btn-secondary');
-    if (btnFiltrarAll) {
-        btnFiltrarAll.addEventListener('click', () => aplicarFiltrosRapidos('all-tickets'));
-    }
-    const btnBuscarAll = document.querySelector('#all-tickets .search-controls .btn-primary');
-    if (btnBuscarAll) {
-        btnBuscarAll.addEventListener('click', (e) => {
-            e.preventDefault();
-            abrirModal('modalBuscar');
-        });
-    }
-    const inputAll = document.querySelector('#all-tickets .search-controls input');
-    if (inputAll) {
-        inputAll.addEventListener('keyup', (e) => {
-            if (e.key === 'Enter') buscarSimple('all-tickets');
-        });
-    }
-
-    // Cerrar modales con tecla ESC
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             cerrarTodosModales();
         }
     });
 
-    // Inicializar permisos y cargar datos
     aplicarPermisosPorRol();
-    cargarTicketsDesdeDOM('my-tickets');
-    cargarTicketsDesdeDOM('all-tickets');
     showSection('dashboard');
 });
 
-// Exponer funciones globalmente
+// Exponer funciones globales
 window.showSection = showSection;
 window.abrirModal = abrirModal;
 window.cerrarModal = cerrarModal;
@@ -425,4 +559,5 @@ window.abrirModalCambiarEstado = abrirModalCambiarEstado;
 window.guardarCambioEstado = guardarCambioEstado;
 window.abrirModalComentario = abrirModalComentario;
 window.guardarComentario = guardarComentario;
-window.buscarSimple = buscarSimple;
+window.asignarmeTicket = asignarmeTicket;
+window.aplicarFiltrosRapidos = aplicarFiltrosRapidos;
