@@ -20,26 +20,26 @@
         <div class="login-card">
             <h2>Iniciar Sesión</h2>
             
-            <div class="login-form">
+            <form id="loginForm">
                 <div class="form-group">
                     <label for="email">
                         <i class="fas fa-envelope"></i> Correo Electrónico
                     </label>
-                    <input type="email" id="email" placeholder="usuario@empresa.com">
+                    <input type="email" id="email" placeholder="usuario@empresa.com" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="password">
                         <i class="fas fa-lock"></i> Contraseña
                     </label>
-                    <input type="password" id="password" placeholder="Ingresa tu contraseña">
+                    <input type="password" id="password" placeholder="Ingresa tu contraseña" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="role">
                         <i class="fas fa-user-tag"></i> Tipo de Usuario
                     </label>
-                    <select id="role">
+                    <select id="role" required>
                         <option value="">Selecciona tu rol</option>
                         <option value="empleado">Empleado</option>
                         <option value="tecnico">Técnico</option>
@@ -47,13 +47,13 @@
                     </select>
                 </div>
                 
-                <button class="btn btn-primary btn-block" onclick="window.location.href='index.html'">
+                <button type="submit" class="btn btn-primary btn-block">
                     <i class="fas fa-sign-in-alt"></i> Ingresar al Sistema
                 </button>
-                
-                <div class="login-footer">
-                    <p>¿Problemas para ingresar? Contacta al soporte técnico</p>
-                </div>
+            </form>
+            
+            <div class="login-footer">
+                <p>¿Problemas para ingresar? Contacta al soporte técnico</p>
             </div>
         </div>
         
@@ -62,7 +62,10 @@
             <p><strong>Empleado:</strong> empleado@demo.com / contraseña123</p>
             <p><strong>Técnico:</strong> tecnico@demo.com / contraseña123</p>
             <p><strong>Admin:</strong> admin@demo.com / contraseña123</p>
+            <p><em>Puedes seleccionar el rol y cualquier contraseña</em></p>
         </div>
     </div>
+
+    <script src="js/login.js"></script>
 </body>
 </html>

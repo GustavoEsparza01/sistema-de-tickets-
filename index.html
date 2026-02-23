@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Tickets - Dashboard</title>
+    <title>Sistema de Tickets - Técnico</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -14,11 +14,10 @@
             <i class="fas fa-ticket-alt"></i>
             <span>TicketSystem</span>
         </div>
-        
         <div class="nav-user">
             <i class="fas fa-user-circle"></i>
-            <span id="current-user">Juan Pérez (Empleado)</span>
-            <button class="btn btn-sm btn-logout" onclick="window.location.href='login.html'">
+            <span id="current-user">Cargando...</span>
+            <button class="btn btn-sm btn-logout" id="btnLogout">
                 <i class="fas fa-sign-out-alt"></i> Salir
             </button>
         </div>
@@ -27,38 +26,31 @@
     <div class="container">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-menu">
-                <button class="sidebar-item active" onclick="showSection('dashboard')">
+            <div class="sidebar-menu" id="sidebar-menu">
+                <button class="sidebar-item active" data-section="dashboard">
                     <i class="fas fa-home"></i> Dashboard
                 </button>
-                
-                <button class="sidebar-item" onclick="showSection('new-ticket')">
+                <!-- El botón de Nuevo Ticket se oculta para técnico (data-role="empleado") -->
+                <button class="sidebar-item" data-section="new-ticket" data-role="empleado">
                     <i class="fas fa-plus-circle"></i> Nuevo Ticket
                 </button>
-                
-                <button class="sidebar-item" onclick="showSection('my-tickets')">
-                    <i class="fas fa-ticket-alt"></i> Mis Tickets
+                <button class="sidebar-item" data-section="my-tickets">
+                    <i class="fas fa-ticket-alt"></i> Mis Asignaciones
                 </button>
-                
-                <button class="sidebar-item" onclick="showSection('all-tickets')">
+                <button class="sidebar-item" data-section="all-tickets" data-role="tecnico,admin">
                     <i class="fas fa-list"></i> Todos los Tickets
                 </button>
-                
                 <div class="sidebar-divider"></div>
-                
-                <button class="sidebar-item" onclick="showSection('knowledge-base')">
+                <button class="sidebar-item" data-section="knowledge-base">
                     <i class="fas fa-book"></i> Base de Conocimiento
                 </button>
-                
-                <button class="sidebar-item" onclick="showSection('reports')">
+                <button class="sidebar-item" data-section="reports" data-role="admin">
                     <i class="fas fa-chart-bar"></i> Reportes
                 </button>
-                
-                <button class="sidebar-item" onclick="showSection('settings')">
+                <button class="sidebar-item" data-section="settings">
                     <i class="fas fa-cog"></i> Configuración
                 </button>
             </div>
-            
             <div class="sidebar-footer">
                 <div class="system-status">
                     <span class="status-indicator active"></span>
@@ -68,12 +60,12 @@
         </aside>
 
         <!-- Contenido Principal -->
-        <main class="main-content">
-            <!-- Dashboard (Sección Activa por Defecto) -->
+        <main class="main-content" id="main-content">
+            <!-- SECCIÓN DASHBOARD (adaptada para técnico) -->
             <section id="dashboard" class="content-section active">
                 <div class="section-header">
-                    <h1><i class="fas fa-home"></i> Dashboard</h1>
-                    <p>Bienvenido al sistema de tickets de soporte técnico</p>
+                    <h1><i class="fas fa-home"></i> Panel del Técnico</h1>
+                    <p>Bienvenido, aquí tienes un resumen de tu trabajo</p>
                 </div>
                 
                 <div class="stats-grid">
@@ -82,8 +74,8 @@
                             <i class="fas fa-exclamation-circle" style="color: #2196f3;"></i>
                         </div>
                         <div class="stat-info">
-                            <h3>Tickets Abiertos</h3>
-                            <span class="stat-number">12</span>
+                            <h3>Mis Tickets Abiertos</h3>
+                            <span class="stat-number">8</span>
                         </div>
                     </div>
                     
@@ -93,7 +85,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>En Progreso</h3>
-                            <span class="stat-number">5</span>
+                            <span class="stat-number">3</span>
                         </div>
                     </div>
                     
@@ -103,17 +95,17 @@
                         </div>
                         <div class="stat-info">
                             <h3>Resueltos Hoy</h3>
-                            <span class="stat-number">8</span>
+                            <span class="stat-number">5</span>
                         </div>
                     </div>
                     
                     <div class="stat-card">
                         <div class="stat-icon" style="background-color: #fff3e0;">
-                            <i class="fas fa-chart-line" style="color: #ff9800;"></i>
+                            <i class="fas fa-clock" style="color: #ff9800;"></i>
                         </div>
                         <div class="stat-info">
                             <h3>Tiempo Promedio</h3>
-                            <span class="stat-number">2.5h</span>
+                            <span class="stat-number">2.1h</span>
                         </div>
                     </div>
                 </div>
@@ -121,17 +113,17 @@
                 <div class="quick-actions">
                     <h2>Acciones Rápidas</h2>
                     <div class="actions-grid">
-                        <button class="action-btn" onclick="showSection('new-ticket')">
-                            <i class="fas fa-plus"></i>
-                            <span>Crear Ticket</span>
+                        <button class="action-btn" onclick="showSection('all-tickets')">
+                            <i class="fas fa-list"></i>
+                            <span>Ver Todos los Tickets</span>
                         </button>
                         
                         <button class="action-btn" onclick="showSection('my-tickets')">
-                            <i class="fas fa-eye"></i>
-                            <span>Ver Mis Tickets</span>
+                            <i class="fas fa-tasks"></i>
+                            <span>Mis Asignaciones</span>
                         </button>
                         
-                        <button class="action-btn">
+                        <button class="action-btn" onclick="abrirModal('modalBuscar')">
                             <i class="fas fa-search"></i>
                             <span>Buscar Ticket</span>
                         </button>
@@ -144,119 +136,25 @@
                 </div>
             </section>
 
-            <!-- Formulario para Nuevo Ticket -->
+            <!-- SECCIÓN NUEVO TICKET (solo para empleado) -->
             <section id="new-ticket" class="content-section">
                 <div class="section-header">
                     <h1><i class="fas fa-plus-circle"></i> Nuevo Ticket de Soporte</h1>
-                    <p>Reporta un problema técnico o solicita asistencia</p>
+                    <p>Esta sección no está disponible para técnicos.</p>
                 </div>
-                
-                <div class="ticket-form-container">
-                    <form id="ticketForm" class="ticket-form">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="ticket-title">
-                                    <i class="fas fa-heading"></i> Título del Problema
-                                </label>
-                                <input type="text" id="ticket-title" 
-                                       placeholder="Ej: Impresora no responde en el área de contabilidad">
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="ticket-category">
-                                    <i class="fas fa-tags"></i> Categoría
-                                </label>
-                                <select id="ticket-category">
-                                    <option value="">Selecciona una categoría</option>
-                                    <option value="impresora">Impresora</option>
-                                    <option value="red">Red/Internet</option>
-                                    <option value="computadora">Computadora</option>
-                                    <option value="software">Software</option>
-                                    <option value="hardware">Hardware</option>
-                                    <option value="telefonia">Teléfonía</option>
-                                    <option value="otro">Otro</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="ticket-priority">
-                                    <i class="fas fa-exclamation-triangle"></i> Prioridad
-                                </label>
-                                <select id="ticket-priority">
-                                    <option value="baja">Baja</option>
-                                    <option value="media" selected>Media</option>
-                                    <option value="alta">Alta</option>
-                                    <option value="critica">Crítica</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="ticket-description">
-                                <i class="fas fa-file-alt"></i> Descripción Detallada
-                            </label>
-                            <textarea id="ticket-description" rows="5" 
-                                      placeholder="Describe el problema con el mayor detalle posible. Incluye:
-- Qué estás tratando de hacer
-- Qué error o problema aparece
-- Cuándo comenzó el problema
-- Pasos para reproducir el problema"></textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="ticket-department">
-                                <i class="fas fa-building"></i> Departamento
-                            </label>
-                            <select id="ticket-department">
-                                <option value="contabilidad">Contabilidad</option>
-                                <option value="ventas">Ventas</option>
-                                <option value="rrhh">Recursos Humanos</option>
-                                <option value="ti">Tecnologías de Información</option>
-                                <option value="operaciones">Operaciones</option>
-                                <option value="otro">Otro</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>
-                                <i class="fas fa-paperclip"></i> Adjuntar Archivos (Opcional)
-                            </label>
-                            <div class="file-upload">
-                                <input type="file" id="ticket-attachments" multiple>
-                                <label for="ticket-attachments" class="file-upload-label">
-                                    <i class="fas fa-cloud-upload-alt"></i>
-                                    <span>Arrastra archivos aquí o haz clic para seleccionar</span>
-                                </label>
-                                <div class="file-list" id="file-list">
-                                    <!-- Archivos seleccionados aparecerán aquí -->
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Cancelar
-                            </button>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-paper-plane"></i> Enviar Ticket
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                <p class="empty-state">Los técnicos no crean tickets, solo los gestionan.</p>
             </section>
 
-            <!-- Sección de Mis Tickets -->
+            <!-- SECCIÓN MIS ASIGNACIONES -->
             <section id="my-tickets" class="content-section">
                 <div class="section-header">
-                    <h1><i class="fas fa-ticket-alt"></i> Mis Tickets</h1>
-                    <p>Tickets que has creado o te han sido asignados</p>
+                    <h1><i class="fas fa-ticket-alt"></i> Mis Asignaciones</h1>
+                    <p>Tickets que tienes asignados actualmente</p>
                 </div>
                 
                 <div class="tickets-controls">
                     <div class="filter-controls">
-                        <select id="filter-status">
+                        <select id="filter-status-tecnico">
                             <option value="">Todos los estados</option>
                             <option value="abierto">Abierto</option>
                             <option value="en-progreso">En Progreso</option>
@@ -264,7 +162,7 @@
                             <option value="cerrado">Cerrado</option>
                         </select>
                         
-                        <select id="filter-priority">
+                        <select id="filter-priority-tecnico">
                             <option value="">Todas las prioridades</option>
                             <option value="baja">Baja</option>
                             <option value="media">Media</option>
@@ -272,21 +170,21 @@
                             <option value="critica">Crítica</option>
                         </select>
                         
-                        <button class="btn btn-secondary">
+                        <button class="btn btn-secondary" onclick="alert('Filtrar asignaciones (simulado)')">
                             <i class="fas fa-filter"></i> Filtrar
                         </button>
                     </div>
                     
                     <div class="search-controls">
-                        <input type="text" placeholder="Buscar tickets..." id="ticket-search">
-                        <button class="btn btn-primary">
-                            <i class="fas fa-search"></i> Buscar
+                        <input type="text" placeholder="Buscar en mis asignaciones...">
+                        <button class="btn btn-primary" onclick="abrirModal('modalBuscar')">
+                            <i class="fas fa-search"></i> Búsqueda Avanzada
                         </button>
                     </div>
                 </div>
                 
                 <div class="tickets-list">
-                    <!-- Ejemplo de Ticket -->
+                    <!-- Ticket asignado ejemplo 1 -->
                     <div class="ticket-item">
                         <div class="ticket-header">
                             <span class="ticket-id">#TKT-001</span>
@@ -299,35 +197,32 @@
                         
                         <div class="ticket-body">
                             <h3 class="ticket-title">Impresora HP no responde en el piso 3</h3>
-                            <p class="ticket-description">La impresora muestra luz roja intermitente y no imprime documentos de nómina urgentes. Ya se intentó reiniciar pero persiste el problema.</p>
+                            <p class="ticket-description">La impresora muestra luz roja intermitente y no imprime documentos de nómina urgentes...</p>
                             
                             <div class="ticket-meta">
-                                <span class="ticket-date">
-                                    <i class="far fa-calendar"></i> Creado: 15 Nov 2023
-                                </span>
-                                <span class="ticket-department">
-                                    <i class="fas fa-building"></i> Contabilidad
-                                </span>
-                                <span class="ticket-assigned">
-                                    <i class="fas fa-user-cog"></i> Asignado a: Carlos Rodríguez
-                                </span>
+                                <span><i class="far fa-calendar"></i> 15 Nov 2023</span>
+                                <span><i class="fas fa-building"></i> Contabilidad</span>
+                                <span><i class="fas fa-user"></i> Solicitante: Juan Pérez</span>
                             </div>
                         </div>
                         
                         <div class="ticket-actions">
-                            <button class="btn btn-sm btn-primary">
-                                <i class="fas fa-eye"></i> Ver Detalles
+                            <button class="btn btn-sm btn-primary" onclick="abrirModalCambiarEstado(1)">
+                                <i class="fas fa-exchange-alt"></i> Cambiar Estado
                             </button>
-                            <button class="btn btn-sm btn-secondary">
+                            <button class="btn btn-sm btn-secondary" onclick="abrirModalComentario(1)">
                                 <i class="fas fa-comment"></i> Comentar
                             </button>
-                            <button class="btn btn-sm btn-danger">
-                                <i class="fas fa-times"></i> Cancelar
+                            <button class="btn btn-sm btn-success" onclick="alert('Marcar como en progreso')">
+                                <i class="fas fa-play"></i> Iniciar
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="alert('Resolver ticket')">
+                                <i class="fas fa-check"></i> Resolver
                             </button>
                         </div>
                     </div>
                     
-                    <!-- Segundo Ticket de Ejemplo -->
+                    <!-- Ticket asignado ejemplo 2 -->
                     <div class="ticket-item">
                         <div class="ticket-header">
                             <span class="ticket-id">#TKT-002</span>
@@ -340,26 +235,142 @@
                         
                         <div class="ticket-body">
                             <h3 class="ticket-title">Computadora sin acceso a red en área de ventas</h3>
-                            <p class="ticket-description">La estación de trabajo del escritorio 5 no tiene conexión a internet ni a recursos de red. El cable de red parece estar bien conectado.</p>
+                            <p class="ticket-description">La estación de trabajo del escritorio 5 no tiene conexión a internet...</p>
                             
                             <div class="ticket-meta">
-                                <span class="ticket-date">
-                                    <i class="far fa-calendar"></i> Creado: 14 Nov 2023
-                                </span>
-                                <span class="ticket-department">
-                                    <i class="fas fa-building"></i> Ventas
-                                </span>
-                                <span class="ticket-assigned">
-                                    <i class="fas fa-user-cog"></i> Asignado a: Técnico de Soporte
-                                </span>
+                                <span><i class="far fa-calendar"></i> 14 Nov 2023</span>
+                                <span><i class="fas fa-building"></i> Ventas</span>
+                                <span><i class="fas fa-user"></i> Solicitante: María López</span>
                             </div>
                         </div>
                         
                         <div class="ticket-actions">
-                            <button class="btn btn-sm btn-primary">
-                                <i class="fas fa-eye"></i> Ver Detalles
+                            <button class="btn btn-sm btn-primary" onclick="abrirModalCambiarEstado(2)">
+                                <i class="fas fa-exchange-alt"></i> Cambiar Estado
                             </button>
-                            <button class="btn btn-sm btn-secondary">
+                            <button class="btn btn-sm btn-secondary" onclick="abrirModalComentario(2)">
+                                <i class="fas fa-comment"></i> Comentar
+                            </button>
+                            <button class="btn btn-sm btn-success" onclick="alert('Marcar como en progreso')" disabled>
+                                <i class="fas fa-play"></i> Iniciar
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="alert('Resolver ticket')">
+                                <i class="fas fa-check"></i> Resolver
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN TODOS LOS TICKETS (panel de control para técnico) -->
+            <section id="all-tickets" class="content-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-list"></i> Todos los Tickets</h1>
+                    <p>Gestiona todos los tickets del sistema</p>
+                </div>
+                
+                <div class="tickets-controls">
+                    <div class="filter-controls">
+                        <select id="filter-status-all">
+                            <option value="">Todos los estados</option>
+                            <option value="abierto">Abierto</option>
+                            <option value="en-progreso">En Progreso</option>
+                            <option value="resuelto">Resuelto</option>
+                            <option value="cerrado">Cerrado</option>
+                        </select>
+                        
+                        <select id="filter-priority-all">
+                            <option value="">Todas las prioridades</option>
+                            <option value="baja">Baja</option>
+                            <option value="media">Media</option>
+                            <option value="alta">Alta</option>
+                            <option value="critica">Crítica</option>
+                        </select>
+                        
+                        <select id="filter-assigned">
+                            <option value="">Todos los técnicos</option>
+                            <option value="asignados">Solo asignados a mí</option>
+                            <option value="no-asignados">No asignados</option>
+                        </select>
+                        
+                        <button class="btn btn-secondary" onclick="alert('Filtrar todos (simulado)')">
+                            <i class="fas fa-filter"></i> Filtrar
+                        </button>
+                    </div>
+                    
+                    <div class="search-controls">
+                        <input type="text" placeholder="Buscar tickets...">
+                        <button class="btn btn-primary" onclick="abrirModal('modalBuscar')">
+                            <i class="fas fa-search"></i> Búsqueda Avanzada
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tickets-list">
+                    <!-- Ticket no asignado -->
+                    <div class="ticket-item">
+                        <div class="ticket-header">
+                            <span class="ticket-id">#TKT-003</span>
+                            <span class="ticket-category badge badge-software">
+                                <i class="fas fa-code"></i> Software
+                            </span>
+                            <span class="ticket-priority badge-priority critica">Crítica</span>
+                            <span class="ticket-status status-abierto">Abierto</span>
+                        </div>
+                        
+                        <div class="ticket-body">
+                            <h3 class="ticket-title">Error en sistema de facturación después de actualización</h3>
+                            <p class="ticket-description">El módulo de facturas lanza un error 500 al intentar generar una factura...</p>
+                            
+                            <div class="ticket-meta">
+                                <span><i class="far fa-calendar"></i> 16 Nov 2023</span>
+                                <span><i class="fas fa-building"></i> Contabilidad</span>
+                                <span><i class="fas fa-user"></i> Solicitante: Luis García</span>
+                                <span><i class="fas fa-user-cog"></i> Asignado a: <span class="text-danger">Nadie</span></span>
+                            </div>
+                        </div>
+                        
+                        <div class="ticket-actions">
+                            <button class="btn btn-sm btn-primary" onclick="abrirModalCambiarEstado(3)">
+                                <i class="fas fa-exchange-alt"></i> Cambiar Estado
+                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="abrirModalComentario(3)">
+                                <i class="fas fa-comment"></i> Comentar
+                            </button>
+                            <button class="btn btn-sm btn-success" onclick="alert('Asignarme este ticket')">
+                                <i class="fas fa-hand-pointer"></i> Asignarme
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Ticket asignado a otro técnico -->
+                    <div class="ticket-item">
+                        <div class="ticket-header">
+                            <span class="ticket-id">#TKT-004</span>
+                            <span class="ticket-category badge badge-hardware">
+                                <i class="fas fa-microchip"></i> Hardware
+                            </span>
+                            <span class="ticket-priority badge-priority alta">Alta</span>
+                            <span class="ticket-status status-en-progreso">En Progreso</span>
+                        </div>
+                        
+                        <div class="ticket-body">
+                            <h3 class="ticket-title">Disco duro externo no reconocido</h3>
+                            <p class="ticket-description">El disco duro externo no aparece en el explorador de archivos...</p>
+                            
+                            <div class="ticket-meta">
+                                <span><i class="far fa-calendar"></i> 15 Nov 2023</span>
+                                <span><i class="fas fa-building"></i> Marketing</span>
+                                <span><i class="fas fa-user"></i> Solicitante: Ana Torres</span>
+                                <span><i class="fas fa-user-cog"></i> Asignado a: Carlos Rodríguez</span>
+                            </div>
+                        </div>
+                        
+                        <div class="ticket-actions">
+                            <button class="btn btn-sm btn-primary" onclick="abrirModalCambiarEstado(4)">
+                                <i class="fas fa-exchange-alt"></i> Cambiar Estado
+                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="abrirModalComentario(4)">
                                 <i class="fas fa-comment"></i> Comentar
                             </button>
                         </div>
@@ -367,39 +378,136 @@
                 </div>
             </section>
 
-            <!-- Otras secciones (vacíos por ahora) -->
-            <section id="all-tickets" class="content-section">
-                <div class="section-header">
-                    <h1><i class="fas fa-list"></i> Todos los Tickets</h1>
-                    <p>Vista completa de todos los tickets del sistema</p>
-                </div>
-                <p class="empty-state">Esta sección mostrará todos los tickets del sistema.</p>
-            </section>
-
+            <!-- SECCIÓN BASE DE CONOCIMIENTO -->
             <section id="knowledge-base" class="content-section">
                 <div class="section-header">
                     <h1><i class="fas fa-book"></i> Base de Conocimiento</h1>
                     <p>Guías y soluciones a problemas comunes</p>
                 </div>
-                <p class="empty-state">Aquí se mostrarán artículos de ayuda y soluciones.</p>
+                <div class="knowledge-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap:20px; margin-top:20px;">
+                    <div class="knowledge-card" style="background:white; padding:20px; border-radius:8px; box-shadow:var(--box-shadow); text-align:center;">
+                        <i class="fas fa-print" style="font-size:3rem; color:#3498db;"></i>
+                        <h3>Problemas con impresoras</h3>
+                        <p>Guía rápida para resolver atascos y errores de conexión.</p>
+                    </div>
+                    <div class="knowledge-card" style="background:white; padding:20px; border-radius:8px; box-shadow:var(--box-shadow); text-align:center;">
+                        <i class="fas fa-wifi" style="font-size:3rem; color:#3498db;"></i>
+                        <h3>Conectividad de red</h3>
+                        <p>Pasos para diagnosticar problemas de red en tu PC.</p>
+                    </div>
+                    <div class="knowledge-card" style="background:white; padding:20px; border-radius:8px; box-shadow:var(--box-shadow); text-align:center;">
+                        <i class="fas fa-laptop" style="font-size:3rem; color:#3498db;"></i>
+                        <h3>Hardware</h3>
+                        <p>Soluciones a fallos comunes en equipos de escritorio.</p>
+                    </div>
+                </div>
             </section>
 
+            <!-- SECCIÓN REPORTES (solo admin) -->
             <section id="reports" class="content-section">
                 <div class="section-header">
                     <h1><i class="fas fa-chart-bar"></i> Reportes</h1>
                     <p>Estadísticas y métricas del sistema</p>
                 </div>
-                <p class="empty-state">Esta sección mostrará gráficos y reportes.</p>
+                <p class="empty-state">Sección exclusiva para administradores.</p>
             </section>
 
+            <!-- SECCIÓN CONFIGURACIÓN -->
             <section id="settings" class="content-section">
                 <div class="section-header">
                     <h1><i class="fas fa-cog"></i> Configuración</h1>
                     <p>Ajustes del sistema y preferencias de usuario</p>
                 </div>
-                <p class="empty-state">Configuración del sistema y usuario.</p>
+                <div style="background:white; padding:30px; border-radius:8px; box-shadow:var(--box-shadow);">
+                    <h2>Perfil de Técnico</h2>
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" value="Carlos Rodríguez" class="form-control" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Correo electrónico</label>
+                        <input type="email" value="carlos.rodriguez@empresa.com" class="form-control" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Rol</label>
+                        <input type="text" value="Técnico" class="form-control" disabled>
+                    </div>
+                    <hr>
+                    <h2>Preferencias</h2>
+                    <div class="form-group">
+                        <label><input type="checkbox" checked> Recibir notificaciones por email</label>
+                    </div>
+                    <div class="form-group">
+                        <label><input type="checkbox"> Notificaciones en tiempo real</label>
+                    </div>
+                    <button class="btn btn-primary">Guardar cambios</button>
+                </div>
             </section>
         </main>
+    </div>
+
+    <!-- MODALES -->
+    <div id="modalOverlay" class="modal-overlay"></div>
+
+    <!-- Modal Nuevo Ticket -->
+    <div id="modalNuevoTicket" class="modal">
+        <!-- ... contenido existente ... -->
+    </div>
+
+    <!-- Modal Búsqueda Avanzada -->
+    <div id="modalBuscar" class="modal">
+        <!-- ... contenido existente ... -->
+    </div>
+
+    <!-- Modal para Cambiar Estado -->
+    <div id="modalCambiarEstado" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-exchange-alt"></i> Cambiar Estado</h2>
+                <span class="close-modal" onclick="cerrarModal('modalCambiarEstado')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="formCambiarEstado">
+                    <input type="hidden" id="estado-ticket-id">
+                    <div class="form-group">
+                        <label for="nuevo-estado">Nuevo estado:</label>
+                        <select id="nuevo-estado" class="form-control" required>
+                            <option value="abierto">Abierto</option>
+                            <option value="en_progreso">En Progreso</option>
+                            <option value="resuelto">Resuelto</option>
+                            <option value="cerrado">Cerrado</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="cerrarModal('modalCambiarEstado')">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarCambioEstado()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Agregar Comentario -->
+    <div id="modalComentar" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-comment"></i> Agregar Comentario</h2>
+                <span class="close-modal" onclick="cerrarModal('modalComentar')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="formComentar">
+                    <input type="hidden" id="comentario-ticket-id">
+                    <div class="form-group">
+                        <label for="comentario-texto">Comentario:</label>
+                        <textarea id="comentario-texto" rows="4" class="form-control" placeholder="Escribe tu comentario..." required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="cerrarModal('modalComentar')">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarComentario()">Enviar</button>
+            </div>
+        </div>
     </div>
 
     <script src="js/ui.js"></script>

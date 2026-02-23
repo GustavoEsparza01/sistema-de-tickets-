@@ -1,0 +1,59 @@
+{
+  "tickets": [
+    {
+      "id": "1",
+      "titulo": "Impresora no funciona",
+      "descripcion": "En el área de ventas, la impresora no imprime",
+      "categoria": "impresora",
+      "prioridad": "alta",
+      "area": "ventas",
+      "tipoSolicitud": "incidencia",
+      "estado": "abierto",
+      "fechaCreacion": "2026-02-21T12:00:00Z"
+    },
+    {
+      "id": "a7a5",
+      "titulo": "Teclado sin conexion",
+      "descripcion": "teclado dejo de responder\n",
+      "categoria": "hardware",
+      "prioridad": "critica",
+      "area": "marketing",
+      "tipoSolicitud": "incidencia",
+      "estado": "abierto",
+      "fechaCreacion": "2026-02-22T05:43:22.747Z"
+    },
+    {
+      "id": "c8ab",
+      "titulo": "Computadora no enciende",
+      "descripcion": "no tiene energia la computadora\n",
+      "categoria": "hardware",
+      "prioridad": "critica",
+      "area": "cobranza",
+      "tipoSolicitud": "reporte",
+      "estado": "abierto",
+      "fechaCreacion": "2026-02-22T05:44:08.937Z"
+    },
+    {
+      "id": "d5b6",
+      "titulo": "Computadora no enciende",
+      "descripcion": "",
+      "categoria": "impresora",
+      "prioridad": "media",
+      "area": "cobranza",
+      "tipoSolicitud": "reporte",
+      "estado": "abierto",
+      "fechaCreacion": "2026-02-22T05:48:54.281Z"
+    },
+    {
+      "id": "97aa",
+      "titulo": "Teclado sin conexion",
+      "descripcion": "eded",
+      "categoria": "impresora",
+      "prioridad": "media",
+      "area": "cobranza",
+      "tipoSolicitud": "reporte",
+      "estado": "abierto",
+      "fechaCreacion": "2026-02-22T19:13:54.698Z"
+    }
+  ]
+}

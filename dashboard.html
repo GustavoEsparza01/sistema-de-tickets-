@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Tickets - Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Barra de Navegación -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-ticket-alt"></i>
+            <span>TicketSystem</span>
+        </div>
+        
+        <div class="nav-user">
+            <i class="fas fa-user-circle"></i>
+            <span id="current-user">Cargando...</span>
+            <button class="btn btn-sm btn-logout" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-menu">
+                <button class="sidebar-item active" data-section="dashboard">
+                    <i class="fas fa-home"></i> Dashboard
+                </button>
+                <button class="sidebar-item" data-section="new-ticket">
+                    <i class="fas fa-plus-circle"></i> Nuevo Ticket
+                </button>
+                <button class="sidebar-item" data-section="my-tickets">
+                    <i class="fas fa-ticket-alt"></i> Mis Tickets
+                </button>
+                <button class="sidebar-item" data-section="all-tickets">
+                    <i class="fas fa-list"></i> Todos los Tickets
+                </button>
+                <div class="sidebar-divider"></div>
+                <button class="sidebar-item" data-section="knowledge-base">
+                    <i class="fas fa-book"></i> Base de Conocimiento
+                </button>
+                <button class="sidebar-item" data-section="reports">
+                    <i class="fas fa-chart-bar"></i> Reportes
+                </button>
+                <button class="sidebar-item" data-section="settings">
+                    <i class="fas fa-cog"></i> Configuración
+                </button>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="system-status">
+                    <span class="status-indicator active"></span>
+                    <span>Sistema: <strong>En línea</strong></span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Contenido Principal (se cargarán los partials aquí) -->
+        <main class="main-content" id="main-content">
+            <!-- Se cargará dinámicamente -->
+        </main>
+    </div>
+
+    <!-- Modales comunes (detalle de ticket, búsqueda, etc.) -->
+    <!-- Modal de Detalle de Ticket -->
+    <div id="modalDetalle" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Detalle del Ticket</h2>
+                <span class="close-modal" onclick="cerrarModal('modalDetalle')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p><strong>Título:</strong> <span id="detalle-titulo"></span></p>
+                <p><strong>Descripción:</strong> <span id="detalle-descripcion"></span></p>
+                <p><strong>Categoría:</strong> <span id="detalle-categoria"></span></p>
+                <p><strong>Prioridad:</strong> <span id="detalle-prioridad"></span></p>
+                <p><strong>Estado:</strong> <span id="detalle-estado"></span></p>
+                <p><strong>Área:</strong> <span id="detalle-area"></span></p>
+                <p><strong>Tipo:</strong> <span id="detalle-tipo"></span></p>
+                <p><strong>Fecha creación:</strong> <span id="detalle-fecha"></span></p>
+                <p><strong>Asignado a:</strong> <span id="detalle-usuario"></span></p>
+                <hr>
+                <h4>Comentarios</h4>
+                <div id="detalle-comentarios" style="max-height: 200px; overflow-y: auto; border: 1px solid #eee; padding: 10px;"></div>
+                <hr>
+                <div id="detalle-acciones" style="display: flex; gap: 10px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="cerrarModal('modalDetalle')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Búsqueda Avanzada -->
+    <div id="modalBuscar" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-search"></i> Búsqueda Avanzada</h2>
+                <span class="close-modal" onclick="cerrarModal('modalBuscar')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Palabras clave</label>
+                    <input type="text" id="buscar-palabras" placeholder="Buscar en títulos y descripciones">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Área</label>
+                        <select id="buscar-area">
+                            <option value="">Todas</option>
+                            <option value="cobranza">Cobranza</option>
+                            <option value="ventas">Ventas</option>
+                            <option value="rrhh">RRHH</option>
+                            <option value="ti">TI</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de solicitud</label>
+                        <select id="buscar-tipo">
+                            <option value="">Todos</option>
+                            <option value="especial">Especial</option>
+                            <option value="reporte">Reporte</option>
+                            <option value="actividad">Actividad programada</option>
+                            <option value="incidencia">Incidencia</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Prioridad</label>
+                        <select id="buscar-prioridad">
+                            <option value="">Todas</option>
+                            <option value="baja">Baja</option>
+                            <option value="media">Media</option>
+                            <option value="alta">Alta</option>
+                            <option value="critica">Crítica</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select id="buscar-estado">
+                            <option value="">Todos</option>
+                            <option value="abierto">Abierto</option>
+                            <option value="en_progreso">En Progreso</option>
+                            <option value="resuelto">Resuelto</option>
+                            <option value="cerrado">Cerrado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fecha desde</label>
+                        <input type="date" id="buscar-fecha-desde">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha hasta</label>
+                        <input type="date" id="buscar-fecha-hasta">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="cerrarModal('modalBuscar')">Cancelar</button>
+                <button class="btn btn-primary" onclick="buscarTickets()">Buscar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Nuevo Ticket (también común) -->
+    <div id="modalNuevoTicket" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> Reportar Incidencia</h2>
+                <span class="close-modal" onclick="cerrarModal('modalNuevoTicket')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="modalTicketForm">
+                    <div class="form-group">
+                        <label for="modal-titulo">Título</label>
+                        <input type="text" id="modal-titulo" placeholder="Ej: Impresora no funciona">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="modal-categoria">Categoría</label>
+                            <select id="modal-categoria">
+                                <option value="impresora">Impresora</option>
+                                <option value="red">Red</option>
+                                <option value="computadora">Computadora</option>
+                                <option value="software">Software</option>
+                                <option value="hardware">Hardware</option>
+                                <option value="telefonia">Teléfonía</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="modal-prioridad">Prioridad</label>
+                            <select id="modal-prioridad">
+                                <option value="baja">Baja</option>
+                                <option value="media">Media</option>
+                                <option value="alta">Alta</option>
+                                <option value="critica">Crítica</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="modal-area">Área</label>
+                            <select id="modal-area">
+                                <option value="cobranza">Cobranza</option>
+                                <option value="ventas">Ventas</option>
+                                <option value="rrhh">RRHH</option>
+                                <option value="ti">TI</option>
+                                <option value="operaciones">Operaciones</option>
+                                <option value="marketing">Marketing</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="modal-tipo">Tipo</label>
+                            <select id="modal-tipo">
+                                <option value="especial">Especial</option>
+                                <option value="reporte">Reporte</option>
+                                <option value="actividad">Actividad programada</option>
+                                <option value="incidencia">Incidencia</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-descripcion">Descripción</label>
+                        <textarea id="modal-descripcion" rows="4"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="cerrarModal('modalNuevoTicket')">Cancelar</button>
+                <button class="btn btn-primary" onclick="enviarTicketModal()">Enviar Ticket</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fondo oscuro para modales -->
+    <div id="modalOverlay" class="modal-overlay" onclick="cerrarTodosModales()"></div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

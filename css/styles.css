@@ -708,3 +708,215 @@ body {
         gap: 10px;
     }
 }
+
+/* ========== NUEVOS ESTILOS AGREGADOS ========== */
+/* Estilos para modales */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 600px;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+    animation: modalFadeIn 0.3s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+.modal-header .close-modal {
+    font-size: 28px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.modal-header .close-modal:hover {
+    color: var(--danger-color);
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 20px 25px;
+    border-top: 1px solid #eee;
+}
+
+/* Estilos para la sección de reportes (Stats adicionales) */
+.stats-filters {
+    background: white;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    margin-bottom: 30px;
+    box-shadow: var(--box-shadow);
+}
+
+/* Ajuste para que los filtros de reportes se alineen bien */
+.stats-filters .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    align-items: end;
+}
+
+.stats-filters .form-group {
+    margin-bottom: 0;
+}
+
+/* Estilos para gráficos de barras simulados */
+.grafico-barras {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    height: 200px;
+    margin-top: 20px;
+}
+
+.barra-container {
+    flex: 1;
+    text-align: center;
+}
+
+.barra {
+    width: 100%;
+    border-radius: 8px 8px 0 0;
+    transition: height 0.3s;
+}
+
+/* Tablas en reportes */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background-color: #f8f9fa;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Mejora para el campo de búsqueda en tickets */
+.search-controls input {
+    min-width: 250px;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+}
+
+.search-controls input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+/* Ajuste para el modal de búsqueda más ancho */
+#modalBuscar .modal-content {
+    max-width: 700px;
+}
+
+/* Estilos para badges de tipo de solicitud (si se usan) */
+.badge-tipo {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.tipo-especial { background-color: #f3e5f5; color: #7b1fa2; }
+.tipo-reporte { background-color: #e1f5fe; color: #0277bd; }
+.tipo-actividad { background-color: #fff9c4; color: #f57f17; }
+.tipo-incidencia { background-color: #ffebee; color: #c62828; }
+
+/* Pequeña mejora para la lista de archivos adjuntos */
+.file-list-items {
+    list-style: none;
+    margin-top: 15px;
+}
+
+.file-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+    margin-bottom: 5px;
+}
+
+.file-name {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.file-size {
+    color: var(--gray-color);
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.remove-file-btn {
+    background: none;
+    border: none;
+    color: var(--danger-color);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 5px;
+}
+
+.remove-file-btn:hover {
+    color: #c0392b;
+}
